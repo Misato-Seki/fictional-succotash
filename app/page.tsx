@@ -1,10 +1,9 @@
-import TrafficData from "@/components/TrafficData";
+import Mapbox from "@/components/Mapbox";
+
+
 
 export default function Home() {
   return (
-    <div className="">
-      <p>Train Location</p>
-      <TrafficData />
-    </div>
+    <Mapbox />
   );
 }
