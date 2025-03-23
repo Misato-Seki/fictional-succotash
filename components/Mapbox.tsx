@@ -25,9 +25,12 @@ const Mapbox = () => {
 
   return (
     <div
-      style={{ height: '100vh' }}
+      style={{
+        width: "100%",
+        height: "100%",
+      }}
       ref={mapContainerRef}
-      className="map-container"
+      className="map-container rounded-2xl"
     />
   );
 };
