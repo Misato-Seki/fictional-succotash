@@ -73,7 +73,7 @@ const Mapbox = () => {
         return (
           <Marker
               key={train.trainNumber}
-              map={mapRef.current}
+              map={mapRef.current!}
               train={train}
               isActive={activeFeature?.trainNumber === train.trainNumber}
               onClick={handleMarkerClick}
@@ -81,7 +81,7 @@ const Mapbox = () => {
       })}
       {mapRef.current && (
         <Popup
-            map={mapRef.current}
+            map={mapRef.current!}
             activeFeature={activeFeature}
         />
       )}
