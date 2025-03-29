@@ -30,9 +30,27 @@ export async function GET(request: Request) {
             trainNumber: item.trainNumber,
             location: item.location.coordinates,
         }))
-        return NextResponse.json(filteredData);   
+        return new NextResponse(JSON.stringify(filteredData), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            }
+        });
     } catch {
-        return NextResponse.json({ error: 'Failed to fetch data'}, { status: 500});
+        return new NextResponse(JSON.stringify({
+            error: 'Error fetching data'
+        }), {
+            status: 500,
+            headers: {
+                "Content-Type": "application/json",
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            }
+        });
         
     }
   }
