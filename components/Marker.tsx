@@ -16,7 +16,7 @@ interface Train {
 
 const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
 
-    const markerRef = useRef()
+    const markerRef = useRef<mapboxgl.Marker | null>(null)
     const contentRef = useRef(document.createElement("div"));
 
     useEffect(() => {
@@ -25,9 +25,12 @@ const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
             .addTo(map)
 
         return () => {
-             markerRef.current.remove()
+            if(markerRef.current) {
+                markerRef.current.remove()
+                markerRef.current = null
+            }
         }
-    }, [])
+    }, [map, train.location])
 
     return (
         <>

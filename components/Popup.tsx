@@ -15,7 +15,7 @@ interface Train {
 const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
 
   // a ref to hold the popup instance
-  const popupRef = useRef()
+  const popupRef = useRef<mapboxgl.Popup | null>(null)
   // a ref for an element to hold the popup's content
   const contentRef = useRef(document.createElement("div"))
 
@@ -30,20 +30,22 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
     })
 
     return () => {
-      popupRef.current.remove()
+      if(popupRef.current) {
+        popupRef.current.remove()
+      }
     }
-  }, [])
+  }, [map])
 
 
   // when activeFeature changes, set the popup's location and content, and add it to the map
   useEffect(() => {
-    if (!activeFeature) return
+    if (!activeFeature || !popupRef.current) return
 
     popupRef.current
       .setLngLat([activeFeature.location[0], activeFeature.location[1]]) // set its position using activeFeature's geometry
       .setHTML(contentRef.current.outerHTML) // use contentRef's `outerHTML` to set the content of the popup
       .addTo(map) // add the popup to the map
-  }, [activeFeature])
+  }, [map, activeFeature])
 
   // use a react portal to render the content to show in the popup, assigning it to contentRef
   return (

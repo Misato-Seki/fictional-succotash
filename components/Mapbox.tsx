@@ -57,7 +57,7 @@ const Mapbox = () => {
     return () => {
       mapRef.current?.remove();
     };
-  }, []);
+  }, [getBboxAndFetch]);
 
   return (
     <>
