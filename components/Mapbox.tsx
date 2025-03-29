@@ -8,6 +8,7 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 
+
 interface TrainLocation {
   trainNumber: number
   location: number[]
@@ -78,7 +79,6 @@ const Mapbox = () => {
 
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
-      mapboxgl: mapboxgl as any,
       marker: false
     })
 
