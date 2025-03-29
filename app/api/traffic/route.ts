@@ -18,7 +18,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const bbox = searchParams.get('bbox')
     try {
-        const response = await fetch(`https://rata.digitraffic.fi/api/v1/train-locations/latest?bbox=${bbox}`);
+        const response = await fetch(`https://rata.digitraffic.fi/api/v1/train-locations/latest?bbox=${bbox}`, {
+            headers: {
+                'Origin': '*',
+                "Accept": "application/json"
+            }
+        });
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
