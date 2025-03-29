@@ -19,10 +19,10 @@ export async function GET(request: Request) {
     const bbox = searchParams.get('bbox')
     try {
         const response = await fetch(`https://rata.digitraffic.fi/api/v1/train-locations/latest?bbox=${bbox}`, {
-            headers: {
-                'Origin': '*',
-                "Accept": "application/json"
-            }
+            // headers: {
+            //     'Origin': '*',
+            //     "Accept": "application/json"
+            // }
         });
 
         if (!response.ok) {
@@ -35,27 +35,28 @@ export async function GET(request: Request) {
             trainNumber: item.trainNumber,
             location: item.location.coordinates,
         }))
-        return new NextResponse(JSON.stringify(filteredData), {
-            status: 200,
-            headers: {
-                "Content-Type": "application/json",
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            }
-        });
+        return NextResponse.json(filteredData);
+        // return new NextResponse(JSON.stringify(filteredData), {
+        //     status: 200,
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         'Access-Control-Allow-Origin': '*',
+        //         'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        //         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        //     }
+        // });
     } catch {
-        return new NextResponse(JSON.stringify({
-            error: 'Error fetching data'
-        }), {
-            status: 500,
-            headers: {
-                "Content-Type": "application/json",
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            }
-        });
-        
+        return NextResponse.json({ error: 'Failed to fetch data'}, { status: 500});
+        // return new NextResponse(JSON.stringify({
+        //     error: 'Error fetching data'
+        // }), {
+        //     status: 500,
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         'Access-Control-Allow-Origin': '*',
+        //         'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        //         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        //     }
+        // });        
     }
   }
