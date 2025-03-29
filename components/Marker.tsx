@@ -4,14 +4,15 @@ import { createPortal } from "react-dom";
 
 interface MarkerProps {
     map: mapboxgl.Map
-    train: Train
+    train: TrainLocation
     isActive: boolean
-    onClick: (train: Train) => void
+    onClick: (train: TrainLocation) => void
 }
 
-interface Train {
+interface TrainLocation {
     trainNumber: number
     location: number[]
+    speed: number
   }
 
 const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
@@ -41,7 +42,7 @@ const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
                         display: "inline-block",
                         padding: "10px 10px",
                         borderRadius: "50px",
-                        backgroundColor: isActive ? "#008000" : "#5CE65C",
+                        backgroundColor: isActive ? "#00A149" : "#5CE65C",
                         boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.5)",
                     }}
                 />,

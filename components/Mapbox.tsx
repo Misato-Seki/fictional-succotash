@@ -6,15 +6,24 @@ import Popup from './Popup';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-interface Train {
+interface TrainLocation {
   trainNumber: number
+  location: number[]
+  speed: number
+}
+
+interface Train {
+  trainNumber?: number
+  speed?: number
+  trainType?: string; // ex: IC
+  trainCategory?: string; // ex: Long-distance
   location: number[]
 }
 
 const Mapbox = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const [trainLocation, setTrainLocation] = useState<Train[]>([])
+  const [trainLocation, setTrainLocation] = useState<TrainLocation[]>([])
   const [activeFeature, setActiveFeature] = useState<Train>()
 
   const getBboxAndFetch = useCallback(async() => {
@@ -23,17 +32,34 @@ const Mapbox = () => {
     try {
         const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/traffic?bbox=${bbox}`)
             .then(d => d.json())
-
         setTrainLocation(data)
     } catch (error) {
         console.error(error)
     }
   }, [])
 
-  const handleMarkerClick = (train: Train) => {
-    setActiveFeature(train)
-}
+  const fetchTrainData = async(trainNumber: number) => {
+    try {
+      const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
+        .then(d => d.json())
+      return data
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
 
+  const handleMarkerClick = async(train: TrainLocation) => {
+    await fetchTrainData(train.trainNumber).then((data) => {
+      setActiveFeature({
+        trainNumber: train.trainNumber,
+        speed: train.speed,
+        location: train.location,
+        trainType: data[0]?.trainType, // ex: IC
+        trainCategory: data[0]?.trainCategory // ex: Long-distance
+      })
+    })
+}
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -51,7 +77,7 @@ const Mapbox = () => {
     })
 
     mapRef.current.on('moveend', () => {
-        getBboxAndFetch()
+      getBboxAndFetch()
     })
 
     return () => {
@@ -69,13 +95,13 @@ const Mapbox = () => {
         ref={mapContainerRef}
         className="map-container rounded-2xl"
       />
-      {mapRef.current && trainLocation && trainLocation?.map((train) => {
+      {mapRef.current && trainLocation && trainLocation?.map((item) => {
         return (
           <Marker
-              key={train.trainNumber}
+              key={item.trainNumber}
               map={mapRef.current!}
-              train={train}
-              isActive={activeFeature?.trainNumber === train.trainNumber}
+              train={item}
+              isActive={activeFeature?.trainNumber === item.trainNumber}
               onClick={handleMarkerClick}
           />)
       })}

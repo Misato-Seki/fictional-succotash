@@ -2,11 +2,14 @@ import Mapbox from "@/components/Mapbox";
 
 export default function Home() {
   return (
-    <div className="flex flex-row min-h-screen overflow-auto">
-      <div className="w-1/5 p-4 rounded-2xl bg-green-200 my-3 ml-3">
+    <div className="relative min-h-screen overflow-auto">
+      <div className="absolute top-0 left-0 p-4 rounded-2xl bg-green-200 z-100">
+        <p>Train Tracker</p>
+      </div>
+      <div className="absolute top-0 right-0 p-4 rounded-2xl bg-green-200 z-100">
         <p>Search Bar</p>
       </div>
-      <div className="flex-auto rounded-4xl m-3">
+      <div className="absolute top-0 left-0 w-full h-full">
         <Mapbox />
       </div>
     </div>
