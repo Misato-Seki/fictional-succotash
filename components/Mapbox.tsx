@@ -3,8 +3,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Marker from './Marker';
 import Popup from './Popup';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+
 
 interface TrainLocation {
   trainNumber: number
@@ -72,8 +75,30 @@ const Mapbox = () => {
       zoom: 9 // starting zoom
     });
 
+    const map = mapRef.current
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      marker: false
+    })
+
+    map.addControl(geocoder, 'top-right')
+
+    geocoder.on('result', (e) => {
+      if (e.result && e.result.center) {
+        map.flyTo({center: e.result.center, zoom: 9})
+      }
+
+    })
+
     mapRef.current.on('load', () => {
       getBboxAndFetch()
+
+      const intervalID = setInterval(() => {
+        getBboxAndFetch()
+      }, 1000*60*10)
+
+      return ()=> clearInterval(intervalID)
     })
 
     mapRef.current.on('moveend', () => {

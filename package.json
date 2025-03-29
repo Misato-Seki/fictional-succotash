@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/mapbox-gl": "^3.4.1",
+    "@mapbox/mapbox-gl-geocoder": "^5.0.3",
+    "@mapbox/search-js-react": "^1.0.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.485.0",
     "mapbox-gl": "^3.10.0",
     "next": "15.2.3",
     "react": "^19.0.0-rc.1",
@@ -21,6 +23,8 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.16",
+    "@types/mapbox__mapbox-gl-geocoder": "^5.0.0",
+    "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

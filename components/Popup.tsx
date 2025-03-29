@@ -28,7 +28,7 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
 
     // create a new popup instance, but do not set its location or content yet
     popupRef.current = new mapboxgl.Popup({
-      closeOnClick: false,
+      closeOnClick: true,
       offset: 20
     })
 
@@ -54,24 +54,24 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
   return (
     <>{
       createPortal(
-        <div className="portal-content">
+        <div className="portal-content text-base p-2">
           <table>
             <tbody>
               <tr>
-                <td><strong>Train No.</strong></td>
+                <td className="pr-3"><strong>Train No.</strong></td>
                 <td>{activeFeature?.trainNumber}</td>
               </tr>
               <tr>
-                <td><strong>Speed</strong></td>
+                <td className="pr-3"><strong>Speed</strong></td>
                 <td>{activeFeature?.speed} km/h</td>
               </tr>
               <tr>
-                <td><strong>trainType</strong></td>
+                <td className="pr-3"><strong>Train Type</strong></td>
                 <td>{activeFeature?.trainType}</td>
               </tr>
               <tr>
-                <td><strong>trainCategory</strong></td>
-                <td>{activeFeature?.trainCategory}</td>
+                <td className="pr-3"><strong>Train Category </strong></td>
+                <td> {activeFeature?.trainCategory}</td>
               </tr>
             </tbody>
           </table>
