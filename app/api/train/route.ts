@@ -1,21 +1,16 @@
 import { NextResponse } from "next/server";
 
-interface Location {
-    type: "Point";
-    coordinates: [number, number]; // [経度, 緯度]
-  }
-
-interface TrainLocationData {
+interface TrainData {
     trainNumber: number; // 列車番号
-    location: Location; // 位置情報
-    speed: number; // 速度（km/h）
+    trainType: string; // ex: IC
+    trainCategory: string; // ex: Long-distance
   }
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const bbox = searchParams.get('bbox')
+    const train_number = searchParams.get('train_number')
     try {
-        const response = await fetch(`https://rata.digitraffic.fi/api/v1/train-locations/latest?bbox=${bbox}`);
+        const response = await fetch(`https://rata.digitraffic.fi/api/v1/trains/latest/${train_number}`);
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -23,10 +18,10 @@ export async function GET(request: Request) {
 
         const data = await response.json();
 
-        const filteredData = data.map((item: TrainLocationData) => ({
+        const filteredData = data.map((item: TrainData) => ({
             trainNumber: item.trainNumber,
-            location: item.location.coordinates,
-            speed: item.speed
+            trainType: item.trainType,
+            trainCategory: item.trainCategory
         }))
         return NextResponse.json(filteredData);
     } catch {

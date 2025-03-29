@@ -8,9 +8,12 @@ interface PopupProps {
 }
 
 interface Train {
-    trainNumber: number
-    location: number[]
-  }
+  trainNumber?: number
+  speed?: number
+  trainType?: string; // ex: IC
+  trainCategory?: string; // ex: Long-distance
+  location: number[]
+}
 
 const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
 
@@ -59,12 +62,16 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
                 <td>{activeFeature?.trainNumber}</td>
               </tr>
               <tr>
-                <td><strong>AAA</strong></td>
-                <td>aaa</td>
+                <td><strong>Speed</strong></td>
+                <td>{activeFeature?.speed} km/h</td>
               </tr>
               <tr>
-                <td><strong>BBB</strong></td>
-                <td>bbb</td>
+                <td><strong>trainType</strong></td>
+                <td>{activeFeature?.trainType}</td>
+              </tr>
+              <tr>
+                <td><strong>trainCategory</strong></td>
+                <td>{activeFeature?.trainCategory}</td>
               </tr>
             </tbody>
           </table>
