@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚂 Train Tracker
+## ✨ Project Overview
+Train Tracker is an application that displays train locations on a map based on data retrieved from the DigiTraffic API. It is designed to allow users to visually track train movements in real time.
+### ✅ Key Feature:
+- Retrieve train location data from the DigiTraffic API
+- Display train locations on a map
+- Auto-update train locations
+- Display detailed train information (Train No, Speed, Train Type, Train Category)
+- Search for a city using the search bar and display train information for that city
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ Getting Started
+### ✅ Requirements
+- Mapbox access token (Required to display the map)
+### ✅ Installation
+1. Clone repo
+```sh
+git clone https://github.com/your-repo/train-tracker.git
+cd train-tracker
 ```
+2. Install dependencies
+```sh
+npm install
+```
+3. Setup `.env.local` file
 
+    Create a `.env.local` file in the project root and add the following content.
+```ini
+NEXT_PUBLIC_URL="API BASE URL"
+NEXT_PUBLIC_MAPBOX_TOKEN="YOUR ACCESS TOKEN"
+```
+4. Start app
+```sh
+npm run dev
+```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ✨ Technical Architecture
+- **Front-end**: React, Next.js(App Router), TypeScript, TailwindCSS, Mapbox
+- **Back-end**: Next.js API Routes (Integration with the DigiTraffic API)
+- **Data Source**: DigiTraffic API - [Docs](https://www.digitraffic.fi/en/railway-traffic/)
+- **Deployment**: Vercel - [Deployed app](https://fictional-succotash-sandy.vercel.app/)

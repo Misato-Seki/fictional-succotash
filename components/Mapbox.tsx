@@ -96,7 +96,7 @@ const Mapbox = () => {
 
       const intervalID = setInterval(() => {
         getBboxAndFetch()
-      }, 1000*60*10)
+      }, 1000*5)
 
       return ()=> clearInterval(intervalID)
     })
