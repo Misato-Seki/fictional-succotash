@@ -29,7 +29,10 @@ export async function GET(request: Request) {
             speed: item.speed
         }))
         return NextResponse.json(filteredData);
-    } catch {
-        return NextResponse.json({ error: 'Failed to fetch data'}, { status: 500});
+    } catch (error: Error | any) {
+        return NextResponse.json({
+            error: 'Failed to fetch data', 
+            message: error.message,  // エラーメッセージ
+            }, { status: 500});
     }
   }

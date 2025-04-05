@@ -11,13 +11,18 @@
   "dependencies": {
     "@mapbox/mapbox-gl-geocoder": "^5.0.3",
     "@mapbox/search-js-react": "^1.0.0",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.485.0",
     "mapbox-gl": "^3.10.0",
     "next": "15.2.3",
     "react": "^19.0.0-rc.1",
     "react-dom": "^19.0.0-rc.1",
-    "react-leaflet": "^5.0.0-rc.2"
+    "react-leaflet": "^5.0.0-rc.2",
+    "tailwind-merge": "^3.1.0",
+    "tw-animate-css": "^1.2.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

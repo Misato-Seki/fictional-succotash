@@ -3,19 +3,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Marker from './Marker';
 import Popup from './Popup';
+import MapController from './MapController';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import DialogDisplay from './DialogDisplay';
 
-
-interface TrainLocation {
+export interface TrainLocation {
   trainNumber: number
   location: number[]
   speed: number
 }
 
-interface Train {
+export interface Train {
   trainNumber?: number
   speed?: number
   trainType?: string; // ex: IC
@@ -28,16 +29,20 @@ const Mapbox = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [trainLocation, setTrainLocation] = useState<TrainLocation[]>([])
   const [activeFeature, setActiveFeature] = useState<Train>()
+  const [showDialog, setShowDialog] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
   const getBboxAndFetch = useCallback(async() => {
     const bounds = mapRef.current ? mapRef.current.getBounds() : null
     const bbox = `${bounds?._sw.lng},${bounds?._sw.lat},${bounds?._ne.lng},${bounds?._ne.lat}`;
     try {
-        const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/traffic?bbox=${bbox}`)
+        const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
             .then(d => d.json())
         setTrainLocation(data)
     } catch (error) {
         console.error(error)
+        setErrorMessage('Failed to fetch trains data.')
+        setShowDialog(true)
     }
   }, [])
 
@@ -48,21 +53,10 @@ const Mapbox = () => {
       return data
     } catch (error) {
       console.error(error)
-      return null
+      setErrorMessage('Failed to fetch train data.')
+      setShowDialog(true)
     }
   }
-
-  const handleMarkerClick = async(train: TrainLocation) => {
-    await fetchTrainData(train.trainNumber).then((data) => {
-      setActiveFeature({
-        trainNumber: train.trainNumber,
-        speed: train.speed,
-        location: train.location,
-        trainType: data[0]?.trainType, // ex: IC
-        trainCategory: data[0]?.trainCategory // ex: Long-distance
-      })
-    })
-}
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -79,10 +73,13 @@ const Mapbox = () => {
 
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
-      marker: false
+      marker: false,
     })
 
-    map.addControl(geocoder, 'top-right')
+    const geocoderContainer = document.getElementById('geocoder-search-box')
+    if(geocoderContainer && geocoder) {
+      geocoderContainer.appendChild(geocoder.onAdd(map))
+    }
 
     geocoder.on('result', (e) => {
       if (e.result && e.result.center) {
@@ -96,7 +93,7 @@ const Mapbox = () => {
 
       const intervalID = setInterval(() => {
         getBboxAndFetch()
-      }, 1000*5)
+      }, 1000*10)
 
       return ()=> clearInterval(intervalID)
     })
@@ -118,8 +115,15 @@ const Mapbox = () => {
           height: "100%",
         }}
         ref={mapContainerRef}
-        className="map-container rounded-2xl"
+        className="map-container"
       />
+      {/* Map Controller */}
+      <MapController 
+        mapRef={mapRef}
+        fetchTrainData={fetchTrainData}
+        setActiveFeature={setActiveFeature}       
+      />
+      {/* Marker */}
       {mapRef.current && trainLocation && trainLocation?.map((item) => {
         return (
           <Marker
@@ -127,15 +131,24 @@ const Mapbox = () => {
               map={mapRef.current!}
               train={item}
               isActive={activeFeature?.trainNumber === item.trainNumber}
-              onClick={handleMarkerClick}
+              fetchTrainData={fetchTrainData}
+              setActiveFeature={setActiveFeature}
           />)
       })}
+      {/* Popup */}
       {mapRef.current && (
         <Popup
             map={mapRef.current!}
             activeFeature={activeFeature}
+            setActiveFeature={setActiveFeature}
         />
       )}
+      {/* Dialog (Error message) */}
+      <DialogDisplay
+        isopen={showDialog}
+        setIsOpen={setShowDialog}
+        description={errorMessage}
+      />
     </>
   );
 };

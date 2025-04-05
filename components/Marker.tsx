@@ -1,24 +1,32 @@
 import { useEffect, useRef } from "react"
 import mapboxgl from "mapbox-gl"
 import { createPortal } from "react-dom";
+import { TrainLocation, Train } from "./Mapbox";
 
 interface MarkerProps {
     map: mapboxgl.Map
     train: TrainLocation
     isActive: boolean
-    onClick: (train: TrainLocation) => void
+    fetchTrainData: (searchTrainNumber: number) => Promise<Train[]>;
+    setActiveFeature: (train: Train | undefined) => void;
 }
 
-interface TrainLocation {
-    trainNumber: number
-    location: number[]
-    speed: number
-  }
-
-const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
+const Marker: React.FC<MarkerProps> = ({ map, train, isActive, fetchTrainData, setActiveFeature }) => {
 
     const markerRef = useRef<mapboxgl.Marker | null>(null)
     const contentRef = useRef(document.createElement("div"));
+
+    const handleMarkerClick = async(train: TrainLocation) => {
+        await fetchTrainData(train.trainNumber).then((data) => {
+            setActiveFeature({
+            trainNumber: train.trainNumber,
+            speed: train.speed,
+            location: train.location,
+            trainType: data[0]?.trainType, // ex: IC
+            trainCategory: data[0]?.trainCategory // ex: Long-distance
+            })
+        })
+    }
 
     useEffect(() => {
         markerRef.current = new mapboxgl.Marker(contentRef.current)
@@ -37,7 +45,7 @@ const Marker: React.FC<MarkerProps> = ({ map, train, isActive, onClick }) => {
         <>
             {createPortal(
                 <div
-                    onClick={() => onClick(train)}
+                    onClick={() => handleMarkerClick(train)}
                     style={{
                         display: "inline-block",
                         padding: "10px 10px",

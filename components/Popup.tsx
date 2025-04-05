@@ -1,26 +1,24 @@
 import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import mapboxgl from 'mapbox-gl'
+import { Train } from "./Mapbox"
 
 interface PopupProps {
     map: mapboxgl.Map
     activeFeature: Train | undefined
+    setActiveFeature: (train: Train | undefined) => void;
 }
 
-interface Train {
-  trainNumber?: number
-  speed?: number
-  trainType?: string; // ex: IC
-  trainCategory?: string; // ex: Long-distance
-  location: number[]
-}
-
-const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
+const Popup: React.FC<PopupProps> = ({ map, activeFeature, setActiveFeature }) => {
 
   // a ref to hold the popup instance
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   // a ref for an element to hold the popup's content
   const contentRef = useRef(document.createElement("div"))
+
+  const handlePopupClose = () => {
+    setActiveFeature(undefined)
+  }
 
   // instantiate the popup on mount, remove it on unmount
   useEffect(() => {
@@ -48,6 +46,12 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature }) => {
       .setLngLat([activeFeature.location[0], activeFeature.location[1]]) // set its position using activeFeature's geometry
       .setHTML(contentRef.current.outerHTML) // use contentRef's `outerHTML` to set the content of the popup
       .addTo(map) // add the popup to the map
+
+    popupRef.current.on('close', () => {
+      // onClose()
+      handlePopupClose()
+    })
+  // }, [map, activeFeature, onClose])
   }, [map, activeFeature])
 
   // use a react portal to render the content to show in the popup, assigning it to contentRef
