@@ -6,7 +6,7 @@ Train Tracker is an application that displays train locations on a map based on 
 - Display train locations on a map
 - Auto-update train locations
 - Display detailed train information (Train No, Speed, Train Type, Train Category)
-- Search for a city using the search bar and display train information for that city
+- Search for a train by train number or city name
 
 ## ✨ Getting Started
 ### ✅ Requirements
