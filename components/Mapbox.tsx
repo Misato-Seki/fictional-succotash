@@ -38,7 +38,12 @@ const Mapbox = () => {
     try {
         const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
             .then(d => d.json())
-        setTrainLocation(data)
+        if(data && data.length > 0) {
+          setTrainLocation(data)
+        } else {
+          setErrorMessage('There is no trains data.')
+          setShowDialog(true)
+        }
     } catch (error) {
         console.error(error)
         setErrorMessage('Failed to fetch trains data.')
@@ -50,7 +55,12 @@ const Mapbox = () => {
     try {
       const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
         .then(d => d.json())
-      return data
+      if(data && data.length > 0) {
+        return data
+      } else {
+        setErrorMessage('There is no train data.')
+        setShowDialog(true)
+      }
     } catch (error) {
       console.error(error)
       setErrorMessage('Failed to fetch train data.')
@@ -85,7 +95,6 @@ const Mapbox = () => {
       if (e.result && e.result.center) {
         map.flyTo({center: e.result.center, zoom: 9})
       }
-
     })
 
     mapRef.current.on('load', () => {
