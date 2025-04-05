@@ -29,10 +29,14 @@ export async function GET(request: Request) {
             speed: item.speed
         }))
         return NextResponse.json(filteredData);
-    } catch (error: Error | any) {
-        return NextResponse.json({
-            error: 'Failed to fetch data', 
-            message: error.message,  // エラーメッセージ
-            }, { status: 500});
+    } catch (error: unknown) {
+        if(error instanceof Error) {
+            return NextResponse.json({
+                error: 'Failed to fetch data', 
+                message: error.message,
+                }, { status: 500});
+        } else {
+            return NextResponse.json({ error: 'An unknown error occurred'}, { status: 500});
+        }
     }
   }

@@ -4,7 +4,7 @@ import { Train, TrainLocation } from './Mapbox';
 import DialogDisplay from './DialogDisplay';
   
 interface MapControllerProps {
-    mapRef: any;
+    mapRef: React.RefObject<mapboxgl.Map | null>;
     fetchTrainData: (searchTrainNumber: number) => Promise<Train[]>;
     setActiveFeature: (train: Train) => void;
 }
@@ -26,7 +26,10 @@ const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, se
     const handleTrainLocation = async(searchTrainNumber: number) => {
       const trainLocationData = await fetchTrainLocationData(searchTrainNumber)
       if (trainLocationData && trainLocationData.length > 0) {
-        mapRef.current?.flyTo({ center: trainLocationData[0].location, zoom: 9 });
+        mapRef.current?.flyTo({
+          center: [trainLocationData[0].location[0], trainLocationData[0].location[1]],
+          zoom: 9
+        });
         const trainData = await fetchTrainData(searchTrainNumber)
         if(trainData && trainData.length > 0) {
           setActiveFeature({

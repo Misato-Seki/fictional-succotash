@@ -4,11 +4,11 @@ import mapboxgl from 'mapbox-gl';
 import Marker from './Marker';
 import Popup from './Popup';
 import MapController from './MapController';
+import DialogDisplay from './DialogDisplay';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import DialogDisplay from './DialogDisplay';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 
 export interface TrainLocation {
   trainNumber: number
