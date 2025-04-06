@@ -36,13 +36,18 @@ const Mapbox = () => {
     const bounds = mapRef.current ? mapRef.current.getBounds() : null
     const bbox = `${bounds?._sw.lng},${bounds?._sw.lat},${bounds?._ne.lng},${bounds?._ne.lat}`;
     try {
-        const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
-            .then(d => d.json())
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
+
+        if(!response.ok){
+          setErrorMessage(`${response.status} - ${response.statusText}`)
+          setShowDialog(true)
+          return
+        }
+
+        const data = await response.json()
+
         if(data && data.length > 0) {
           setTrainLocation(data)
-        } else {
-          setErrorMessage('There is no trains data.')
-          setShowDialog(true)
         }
     } catch (error) {
         console.error(error)
@@ -53,13 +58,18 @@ const Mapbox = () => {
 
   const fetchTrainData = async(trainNumber: number) => {
     try {
-      const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
-        .then(d => d.json())
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
+      
+      if(!response.status) {
+        setErrorMessage(`${response.status} - ${response.statusText}`)
+          setShowDialog(true)
+          return
+      }
+
+      const data = await response.json()
+
       if(data && data.length > 0) {
         return data
-      } else {
-        setErrorMessage('There is no train data.')
-        setShowDialog(true)
       }
     } catch (error) {
       console.error(error)
