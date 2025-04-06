@@ -6,6 +6,8 @@ import Popup from './Popup';
 import MapController from './MapController';
 import DialogDisplay from './DialogDisplay';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { useMemo } from 'react';
+import debounce from 'lodash.debounce';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
@@ -32,17 +34,23 @@ const Mapbox = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
 
+  // Fetch train location data within the current map bounds (BBox)
   const getBboxAndFetch = useCallback(async() => {
     const bounds = mapRef.current ? mapRef.current.getBounds() : null
     const bbox = `${bounds?._sw.lng},${bounds?._sw.lat},${bounds?._ne.lng},${bounds?._ne.lat}`;
     try {
-        const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
-            .then(d => d.json())
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/trains_location?bbox=${bbox}`)
+
+        if(!response.ok){
+          setErrorMessage(`${response.status} - ${response.statusText}`)
+          setShowDialog(true)
+          return
+        }
+
+        const data = await response.json()
+
         if(data && data.length > 0) {
           setTrainLocation(data)
-        } else {
-          setErrorMessage('There is no trains data.')
-          setShowDialog(true)
         }
     } catch (error) {
         console.error(error)
@@ -51,15 +59,21 @@ const Mapbox = () => {
     }
   }, [])
 
+  // Fetch detailed train data by train no.
   const fetchTrainData = async(trainNumber: number) => {
     try {
-      const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
-        .then(d => d.json())
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
+      
+      if(!response.ok) {
+        setErrorMessage(`${response.status} - ${response.statusText}`)
+          setShowDialog(true)
+          return
+      }
+
+      const data = await response.json()
+
       if(data && data.length > 0) {
         return data
-      } else {
-        setErrorMessage('There is no train data.')
-        setShowDialog(true)
       }
     } catch (error) {
       console.error(error)
@@ -68,6 +82,10 @@ const Mapbox = () => {
     }
   }
 
+  // Debounced version of getBboxAndFetch to reduce API call frequency
+  const debouncedGetBboxAndFetch = useMemo(() => debounce(getBboxAndFetch, 500), [getBboxAndFetch]);
+
+  // Initialize Mapbox map and setup event listeners
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -75,8 +93,8 @@ const Mapbox = () => {
     
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
-      center: [24.945, 60.192], // starting position [lng, lat]
-      zoom: 9 // starting zoom
+      center: [24.945, 60.192], // [lng, lat]
+      zoom: 9
     });
 
     const map = mapRef.current
@@ -98,23 +116,33 @@ const Mapbox = () => {
     })
 
     mapRef.current.on('load', () => {
-      getBboxAndFetch()
+      debouncedGetBboxAndFetch()
 
       const intervalID = setInterval(() => {
-        getBboxAndFetch()
+        debouncedGetBboxAndFetch()
       }, 1000*10)
 
       return ()=> clearInterval(intervalID)
     })
 
     mapRef.current.on('moveend', () => {
-      getBboxAndFetch()
+      debouncedGetBboxAndFetch()
     })
 
     return () => {
       mapRef.current?.remove();
+      debouncedGetBboxAndFetch.cancel();
     };
-  }, [getBboxAndFetch]);
+  }, [debouncedGetBboxAndFetch]);
+
+  // Re-fetch train data when window is resized
+  useEffect(() => {
+    window.addEventListener('resize', debouncedGetBboxAndFetch);
+
+    return () => {
+      window.removeEventListener('resize', debouncedGetBboxAndFetch);
+    };
+  }, [debouncedGetBboxAndFetch]);
 
   return (
     <>

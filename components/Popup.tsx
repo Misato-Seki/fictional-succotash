@@ -16,10 +16,6 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature, setActiveFeature }) =
   // a ref for an element to hold the popup's content
   const contentRef = useRef(document.createElement("div"))
 
-  const handlePopupClose = () => {
-    setActiveFeature(undefined)
-  }
-
   // instantiate the popup on mount, remove it on unmount
   useEffect(() => {
     if (!map) return
@@ -42,19 +38,18 @@ const Popup: React.FC<PopupProps> = ({ map, activeFeature, setActiveFeature }) =
   useEffect(() => {
     if (!activeFeature || !popupRef.current) return
 
+    const handlePopupClose = () => {
+      setActiveFeature(undefined)
+    }
+
     popupRef.current
       .setLngLat([activeFeature.location[0], activeFeature.location[1]]) // set its position using activeFeature's geometry
       .setHTML(contentRef.current.outerHTML) // use contentRef's `outerHTML` to set the content of the popup
       .addTo(map) // add the popup to the map
 
-    popupRef.current.on('close', () => {
-      // onClose()
-      handlePopupClose()
-    })
-  // }, [map, activeFeature, onClose])
-  }, [map, activeFeature])
-
-  // use a react portal to render the content to show in the popup, assigning it to contentRef
+    popupRef.current.on('close', handlePopupClose)
+  }, [map, activeFeature, setActiveFeature])
+  
   return (
     <>{
       createPortal(
