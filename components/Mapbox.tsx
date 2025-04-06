@@ -34,6 +34,7 @@ const Mapbox = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
 
+  // Fetch train location data within the current map bounds (BBox)
   const getBboxAndFetch = useCallback(async() => {
     const bounds = mapRef.current ? mapRef.current.getBounds() : null
     const bbox = `${bounds?._sw.lng},${bounds?._sw.lat},${bounds?._ne.lng},${bounds?._ne.lat}`;
@@ -58,11 +59,12 @@ const Mapbox = () => {
     }
   }, [])
 
+  // Fetch detailed train data by train no.
   const fetchTrainData = async(trainNumber: number) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train?train_number=${trainNumber}`)
       
-      if(!response.status) {
+      if(!response.ok) {
         setErrorMessage(`${response.status} - ${response.statusText}`)
           setShowDialog(true)
           return
@@ -80,9 +82,10 @@ const Mapbox = () => {
     }
   }
 
-  // Use useMemo to avoid creating a new debounced function on every render
+  // Debounced version of getBboxAndFetch to reduce API call frequency
   const debouncedGetBboxAndFetch = useMemo(() => debounce(getBboxAndFetch, 500), [getBboxAndFetch]);
 
+  // Initialize Mapbox map and setup event listeners
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -90,8 +93,8 @@ const Mapbox = () => {
     
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
-      center: [24.945, 60.192], // starting position [lng, lat]
-      zoom: 9 // starting zoom
+      center: [24.945, 60.192], // [lng, lat]
+      zoom: 9
     });
 
     const map = mapRef.current
@@ -132,7 +135,7 @@ const Mapbox = () => {
     };
   }, [debouncedGetBboxAndFetch]);
 
-  // Debounced window resize handler to fetch updated train data
+  // Re-fetch train data when window is resized
   useEffect(() => {
     window.addEventListener('resize', debouncedGetBboxAndFetch);
 

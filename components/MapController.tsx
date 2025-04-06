@@ -13,50 +13,79 @@ interface MapControllerProps {
 const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, setActiveFeature}) => {
     const [searchTrainNumber, setSearchTrainNumber] = useState<string>('')
     const [showDialog, setShowDialog] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState<string>('')
     const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true)
     const [isMobile, setIsMobile] = useState<boolean>(false)
 
+    //Fetch train location data based on train number
     const fetchTrainLocationData = async(trainNumber: number): Promise<TrainLocation[] | undefined> => {
       try {
-        const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train_location?train_number=${trainNumber}`)
-          .then(d => d.json())
-        return data
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/train_location?train_number=${trainNumber}`)
+        
+        if(!response.ok) {
+            setErrorMessage(`${response.status} - ${response.statusText}`)
+            setShowDialog(true)
+            return
+        }
+
+        const data = await response.json()
+
+        if(data && data.length > 0) {
+          return data
+        } else {
+          setErrorMessage('No data found for the given train number.')
+          setShowDialog(true)
+          return
+        }
       } catch (error) {
         console.error(error)
-      }
-    }
-
-    const handleTrainLocation = async(searchTrainNumber: number) => {
-      const trainLocationData = await fetchTrainLocationData(searchTrainNumber)
-      if (trainLocationData && trainLocationData.length > 0) {
-        mapRef.current?.flyTo({
-          center: [trainLocationData[0].location[0], trainLocationData[0].location[1]],
-          zoom: 9
-        });
-        const trainData = await fetchTrainData(searchTrainNumber)
-        if(trainData && trainData.length > 0) {
-          setActiveFeature({
-            trainNumber: trainLocationData[0].trainNumber,
-            speed: trainLocationData[0].speed,
-            trainType: trainData[0].trainType,
-            trainCategory: trainData[0].trainCategory,
-            location: trainLocationData[0].location
-          })
-        }
-      }
-      else {
+        setErrorMessage('Failed to fetch train data.')
         setShowDialog(true)
       }
     }
 
+    // Handles fetching train location and data
+    const handleTrainLocation = async(searchTrainNumber: number) => {
+      const trainLocationData = await fetchTrainLocationData(searchTrainNumber)
+
+      if (!trainLocationData || trainLocationData.length === 0) {
+        setShowDialog(true);
+        return;
+      }
+      
+      mapRef.current?.flyTo({
+        center: [trainLocationData[0].location[0], trainLocationData[0].location[1]],
+        zoom: 9
+      });
+
+      const trainData = await fetchTrainData(searchTrainNumber)
+
+      if (!trainData || trainData.length === 0) {
+        setErrorMessage('No train data found.');
+        setShowDialog(true);
+        return;
+      }
+
+      setActiveFeature({
+        trainNumber: trainLocationData[0].trainNumber,
+        speed: trainLocationData[0].speed,
+        trainType: trainData[0].trainType,
+        trainCategory: trainData[0].trainCategory,
+        location: trainLocationData[0].location
+      })
+    }
+
+    // Reloads the page
     const handleReload = () => {
       window.location.reload()
     }
 
+    // Toggles the sidebar panel visibility
     const togglePanel = () => {
       setIsPanelOpen(prev => !prev)
     }
 
+    // Detects screen size
     useEffect(() => {
       const handleResize = () => {
         setIsMobile(window.innerWidth < 640)
@@ -122,7 +151,7 @@ const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, se
         <DialogDisplay
           isopen={showDialog}
           setIsOpen={setShowDialog}
-          description='There is no train data.'
+          description={errorMessage}
         />
       </>
     )
