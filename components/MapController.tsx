@@ -1,7 +1,8 @@
-import { TrainFront } from 'lucide-react';
-import { useState } from 'react';
+import { X, Menu, TrainFront } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Train, TrainLocation } from './Mapbox';
 import DialogDisplay from './DialogDisplay';
+import { Button } from './ui/button';
  
 interface MapControllerProps {
     mapRef: React.RefObject<mapboxgl.Map | null>;
@@ -12,7 +13,8 @@ interface MapControllerProps {
 const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, setActiveFeature}) => {
     const [searchTrainNumber, setSearchTrainNumber] = useState<string>('')
     const [showDialog, setShowDialog] = useState<boolean>(false)
-    // const [isMobile, setIsMobile] = useState<boolean>(false)
+    const [isPanelOpen, setIsPanelOpen] = useState<boolean>(true)
+    const [isMobile, setIsMobile] = useState<boolean>(false)
 
     const fetchTrainLocationData = async(trainNumber: number): Promise<TrainLocation[] | undefined> => {
       try {
@@ -51,48 +53,70 @@ const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, se
       window.location.reload()
     }
 
-    // useEffect(() => {
-    //   const handleResize = () => {
-    //     setIsMobile(window.innerWidth < 768)
-    //   }
-    //   handleResize()
-    //   window.addEventListener('resize', handleResize)
+    const togglePanel = () => {
+      setIsPanelOpen(prev => !prev)
+    }
 
-    //   return () => window.removeEventListener('resize', handleResize)
-    // },[])
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 640)
+      }
+      handleResize()
+      window.addEventListener('resize', handleResize)
+
+      return () => window.removeEventListener('resize', handleResize)
+    },[])
 
     return (
       <>
-        <div className='absolute top-0 w-full flex justify-center sm:justify-start z-10'>
-          <div className="mt-4 p-4 bg-white bg-opacity-80 rounded-lg shadow-lg w-[90%] sm:ml-4 sm:w-auto">
-            {/* Logo */}
-            <div 
+        {/* Toggle Button */}
+        <Button
+          variant='outline'
+          className={`fixed top-4 left-4 z-10 transition-transform duration-300 ${isPanelOpen ? 'translate-x-[75vw]' : 'translate-x-0'} sm:hidden`}
+          onClick={togglePanel}
+        >
+          {isPanelOpen ? <X size={24} /> : <Menu size={24} />}
+        </Button>
+
+        <div
+          className={`
+            ${isMobile
+              ? 'fixed top-0 left-0 h-full z-10 bg-white bg-opacity-90 shadow-lg p-4 rounded-r-xl w-3/4 transition-transform duration-300 ' +
+                (isPanelOpen ? 'translate-x-0' : '-translate-x-full')
+              : 'absolute top-4 left-4 z-10 bg-white bg-opacity-90 shadow-lg p-4 rounded-2xl'
+            }
+          `}
+        >
+        
+          {/* Logo */}
+          <div 
               className="flex flex-row mb-3 text-[#00A149] text-2xl sm:text-3xl cursor-pointer" 
               onClick={handleReload}>
               <TrainFront size={32}/>
               <p>Train Tracker</p>
-            </div>
-            {/* Train No. Search Box */}
-            <div className='flex flex-row gap-3 mb-3'>
+          </div>
+
+          {/* Train No. Search Box */}
+          <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3 mb-3`}>
               <p className='grow'>Train no.</p>
               <input
-                  type='string'
+                  type='text'
                   placeholder='Search'
                   value={searchTrainNumber}
                   onChange={(e) => setSearchTrainNumber(e.target.value)}
                   onKeyDown={(e) => {
-                  if(e.key === 'Enter' && searchTrainNumber) {
-                      handleTrainLocation(Number(searchTrainNumber))
-                  }
+                      if(e.key === 'Enter' && searchTrainNumber) {
+                          handleTrainLocation(Number(searchTrainNumber))
+                      }
                   }}
                   className='grow p-2 rounded-md font-sans shadow sm:text-sm text-lg justify-end'
               />
-            </div>
-            {/* City Search Box */}
-            <div className='flex flex-row gap-3'>
+          </div>
+
+          {/* City Search Box */}
+          <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
               <p className='grow'>City</p>
               <div id='geocoder-search-box' className='grow justify-end'></div>
-            </div>
           </div>
         </div>
         <DialogDisplay
