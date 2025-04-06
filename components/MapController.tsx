@@ -72,7 +72,7 @@ const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, se
         {/* Toggle Button */}
         <Button
           variant='outline'
-          className='absolute bottom-4 right-4 z-20 sm:hidden'
+          className={`fixed top-4 left-4 z-10 transition-transform duration-300 ${isPanelOpen ? 'translate-x-[75vw]' : 'translate-x-0'} sm:hidden`}
           onClick={togglePanel}
         >
           {isPanelOpen ? <X size={24} /> : <Menu size={24} />}
@@ -81,7 +81,7 @@ const MapController: React.FC<MapControllerProps> = ({mapRef, fetchTrainData, se
         <div
           className={`
             ${isMobile
-              ? 'fixed top-0 left-0 h-full z-10 bg-white bg-opacity-90 shadow-lg p-4 rounded-r-xl w-3/4 max-w-xs transition-transform duration-300 ' +
+              ? 'fixed top-0 left-0 h-full z-10 bg-white bg-opacity-90 shadow-lg p-4 rounded-r-xl w-3/4 transition-transform duration-300 ' +
                 (isPanelOpen ? 'translate-x-0' : '-translate-x-full')
               : 'absolute top-4 left-4 z-10 bg-white bg-opacity-90 shadow-lg p-4 rounded-2xl'
             }
