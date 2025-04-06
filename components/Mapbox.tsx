@@ -6,6 +6,8 @@ import Popup from './Popup';
 import MapController from './MapController';
 import DialogDisplay from './DialogDisplay';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { useMemo } from 'react';
+import debounce from 'lodash.debounce';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
@@ -78,6 +80,9 @@ const Mapbox = () => {
     }
   }
 
+  // Use useMemo to avoid creating a new debounced function on every render
+  const debouncedGetBboxAndFetch = useMemo(() => debounce(getBboxAndFetch, 500), [getBboxAndFetch]);
+
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -108,23 +113,33 @@ const Mapbox = () => {
     })
 
     mapRef.current.on('load', () => {
-      getBboxAndFetch()
+      debouncedGetBboxAndFetch()
 
       const intervalID = setInterval(() => {
-        getBboxAndFetch()
+        debouncedGetBboxAndFetch()
       }, 1000*10)
 
       return ()=> clearInterval(intervalID)
     })
 
     mapRef.current.on('moveend', () => {
-      getBboxAndFetch()
+      debouncedGetBboxAndFetch()
     })
 
     return () => {
       mapRef.current?.remove();
+      debouncedGetBboxAndFetch.cancel();
     };
-  }, [getBboxAndFetch]);
+  }, [debouncedGetBboxAndFetch]);
+
+  // Debounced window resize handler to fetch updated train data
+  useEffect(() => {
+    window.addEventListener('resize', debouncedGetBboxAndFetch);
+
+    return () => {
+      window.removeEventListener('resize', debouncedGetBboxAndFetch);
+    };
+  }, [debouncedGetBboxAndFetch]);
 
   return (
     <>
